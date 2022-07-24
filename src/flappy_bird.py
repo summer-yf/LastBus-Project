@@ -106,13 +106,13 @@ class FlappyBird(object):
             self.is_flapped = True
 
         # Update score
-        bird_center_x = self.bird_x + self.bird_width / 2
-        for pipe in self.pipes:
-            pipe_center_x = pipe["x_upper"] + self.pipe_width / 2
-            if pipe_center_x < bird_center_x < pipe_center_x + 5:
-                self.score += 1
-                reward = 1
-                break
+        # bird_center_x = self.bird_x + self.bird_width / 2
+        # for pipe in self.pipes:
+        #     pipe_center_x = pipe["x_upper"] + self.pipe_width / 2
+        #     if pipe_center_x < bird_center_x < pipe_center_x + 5:
+        #         self.score += 1
+        #         reward = 1
+        #         break
 
         # Update index and iteration
         if (self.iter + 1) % 3 == 0:
