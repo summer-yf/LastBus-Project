@@ -6,7 +6,7 @@ class ReplayMemory:
         self.memory = []
 
     def push(self, transition):
-        if len(self.memory == capacity)
+        if len(self.memory == self.capacity):
             del self.memory[0]
         self.memory.append(transition)
         return
@@ -14,6 +14,6 @@ class ReplayMemory:
     def sample(self, batch_size):
         sample(self.memory, batch_size)
         return
-        
+
     def __len__(self):
         return len(self.memory)
