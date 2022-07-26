@@ -1,8 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
-
-# JUST FOR REFERENCING 
+#https://github.com/lambders/drl-experiments
+# JUST FOR REFERENCING
 # class ActorNetwork3Layer(nn.Module):
 #     def __init__(self):
 #         super(ActorNetwork3Layer, self).__init__()
@@ -24,6 +24,50 @@ import torch
 
 #         return output
 
+class ActorCriticModel(nn.Module):
+
+    def __init__(self):
+
+        super(ActorCriticModel, self).__init__()
+
+        #im not sure how many layers we want
+        self.conv1 = nn.Conv2d(4, 16, 8, 4)
+        self.relu1 = nn.ReLU()
+        self.conv2 = nn.Conv2d(16, 32, 4, 2)
+        self.relu2 = nn.ReLU()
+
+        self.fc3 = nn.Linear(2592, 256)
+        self.relu3 = nn.ReLU()
+
+        self.actor = nn.Linear(256, 2)
+        self.critic = nn.Linear(256, 1)
+
+        self.softmax = nn.Softmax()
+        self.logsoftmax = nn.LogSoftmax()
+        self.create_weightss()
+
+
+    def create_weightss(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+                nn.init.uniform_(m.weight, -0.01, 0.01)
+                nn.init.constant_(m.bias, 0)
+
+
+    def forward(self, input):
+
+        output = self.relu1(self.conv1(input))
+        output = self.relu2(self.conv2(output))
+        output = output.view(output.size()[0], -1)
+        output = self.relu3(self.fc3(output))
+
+        act_value = self.actor(output)
+        crit_value = self.critic(output)
+        # Careful which one is first
+        return act_value, crit_value
+
+
+"""
 class ActorCriticModel():
     def __init__(self):
         super(ActorCriticModel, self).__init__()
@@ -34,10 +78,11 @@ class ActorCriticModel():
 
         # Critic
         self.critic = nn.Linear(128, 1)
-    
+
     def forward(self, input):
         output = F.relu(self.layer1(input))
         actor_pr = F.softmax(self.actor(output), dim=-1)
         critic_value = self.critic(output)
 
         return actor_pr, critic_value
+"""
