@@ -1,6 +1,3 @@
-"""
-@author: Viet Nguyen <nhviet1009@gmail.com>
-"""
 from itertools import cycle
 from numpy.random import randint
 from pygame import Rect, init, time, display
@@ -101,18 +98,18 @@ class FlappyBird(object):
         reward = 0.1
         terminal = False
         # Check input action
-        if action == 1:
+        if action[0] == 1:
             self.current_velocity_y = self.upward_speed
             self.is_flapped = True
 
         # Update score
-        # bird_center_x = self.bird_x + self.bird_width / 2
-        # for pipe in self.pipes:
-        #     pipe_center_x = pipe["x_upper"] + self.pipe_width / 2
-        #     if pipe_center_x < bird_center_x < pipe_center_x + 5:
-        #         self.score += 1
-        #         reward = 1
-        #         break
+        bird_center_x = self.bird_x + self.bird_width / 2
+        for pipe in self.pipes:
+            pipe_center_x = pipe["x_upper"] + self.pipe_width / 2
+            if pipe_center_x < bird_center_x < pipe_center_x + 5:
+                self.score += 1
+                reward = 1
+                break
 
         # Update index and iteration
         if (self.iter + 1) % 3 == 0:

@@ -1,19 +1,19 @@
 from random import sample
+import torch
+import numpy as np
 
 class ReplayMemory:
     def __init__(self, capacity):
         self.capacity = capacity
         self.memory = []
 
-    def push(self, transition):
+    def push(self, state, action, next_state, reward, terminal):
         if len(self.memory) == self.capacity:
             del self.memory[0]
-        self.memory.append(transition)
+        self.memory.append([state, action, next_state, reward, terminal])
         return
 
     def sample(self, batch_size):
-        sample(self.memory, min(len(self.memory), batch_size))
-        return
+        batch = sample(self.memory, min(len(self.memory), batch_size))
+        return batch
 
-    def __len__(self):
-        return len(self.memory)
