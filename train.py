@@ -53,6 +53,7 @@ def train():
     
     action = torch.zeros([2], dtype=torch.float32)
     action[0] = 1
+    iter = 0
     state_image, reward, terminal = game.next_frame(action)
     state = pre_processing(state_image)
     # target_net.load_state_dict(policy_net.state_dict()) # This will copy the weights of the policy network to the target network
@@ -60,9 +61,13 @@ def train():
     # optimizer = torch.optim.Adam(policy_net.parameters(), lr=LEARNING_RATE) # The optimizer will update ONLY the parameters of the policy network
     while iter < MAX_ITER:
         iter = iter + 1
+        
+        # ============================
         # Exploration or exploitation
+        # ===========================
         state_tensor = torch.tensor(state, dtype=torch.float32)[None, :, :]
         state_tensor = torch.cat((state_tensor, state_tensor, state_tensor, state_tensor)).unsqueeze(0)
+        
         # Epsilon-Greedy implementation
         epsilon = 1e-4 + (
                 (MAX_ITER - iter) * (0.1 - 1e-4) / MAX_ITER)
@@ -80,9 +85,18 @@ def train():
 
         action[action_index] = 1
 
+        # ===================================
+        # ===================================
+        
+        # =================================
+        # Core part (Before experience replay)
+        # ==================================
         next_state_image, reward, terminal = game.next_frame(action)
         next_state = pre_processing(next_state_image)
+        
+        # next_state_image = [90, 90]
         next_state_tensor = torch.tensor(next_state, dtype=torch.float32)[None, :, :]
+        # next_state_tensor = [1, 90, 90]
         next_state_tensor = torch.cat((next_state_tensor, next_state_tensor, next_state_tensor, next_state_tensor)).unsqueeze(0)
 
         # Experience is array of gameplay, with each gameplay = (state, action, next_state, reward, terminal)
@@ -90,10 +104,20 @@ def train():
         action = action.unsqueeze(0)
         reward = torch.from_numpy(np.array([reward], dtype=np.float32)).unsqueeze(0)
 
+        # save replay
         memory.push(state_tensor, action, next_state_tensor, reward, terminal)
 
+        # ======================================
+        # Experience Replay (training the model)
+        # ======================================
+        
         if iter % 1000 == 0:
+            
             batch = memory.sample(BATCH_SIZE)
+            
+            # batch = [state, action, next_state, reward, terminal], [state2, action2, next_state2...]
+            # state_batch = [state, state2, state3...]
+            
             # unpack minibatch
             state_batch = torch.cat(tuple(d[0] for d in batch))
             action_batch = torch.cat(tuple(d[1] for d in batch))
@@ -114,7 +138,8 @@ def train():
                                     else reward_batch[i] + DISCOUNT_FACTOR * torch.max(output_1_batch[i])
                                     for i in range(len(batch))))
 
-            # extract Q-value
+            # extract Q-value (not correct)
+            # q_value Q(t, a) = reward you get given you are at state_t and you perform action_a
             q_value = torch.sum(model(state_batch) * action_batch, dim=1)
 
             # PyTorch accumulates gradients by default, so they need to be reset in each pass
@@ -124,6 +149,12 @@ def train():
             y_batch = y_batch.detach()
 
             # calculate loss
+            
+            # 2 things to work out
+            # 1. q value Q(s_t, a_t) where time now is t
+            # 2. reward + discount_factor * max_b(Q((s_t+1, b)))
+            # loss = criterion(1, 2)
+            
             loss = criterion(q_value, y_batch)
 
             # do backward pass

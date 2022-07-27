@@ -1,6 +1,4 @@
 from random import sample
-import torch
-import numpy as np
 
 class ReplayMemory:
     def __init__(self, capacity):
