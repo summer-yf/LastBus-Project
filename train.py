@@ -14,6 +14,7 @@ def train_model():
     iter = 0
     state_image, reward, terminal = game.next_frame(action[1])
     state = pre_processing(state_image)
+    state = torch.cat((state, state, state, state)).unsqueeze(0)
     alive_stat = []
     alive_time = 0
     while iter < MAX_ITER:
@@ -21,24 +22,28 @@ def train_model():
         q_value = model(state)[0]
         
         action = torch.zeros(2, dtype=torch.float32)
+        if torch.cuda.is_available():
+            action = action.cuda()
         
         # Epsilon-Greedy implementation
         epsilon = INITIAL_EPSILON * (1 - iter / MAX_ITER)
         u = random.random()
         random_action = False if epsilon < u else True
         index = torch.argmax(q_value).item()
-
+        
         if random_action:
             print("Performed random action!")
-            index = randint(0, 1)               
-        action[index] = 1
+            index = randint(0, 1)     
+        action[index] = 1  
        
         next_state_image, reward, terminal = game.next_frame(action[1])
-        next_state = pre_processing(next_state_image)
+        next_state_image = pre_processing(next_state_image)
+        next_state = torch.cat((state.squeeze(0)[1:, :, :], next_state_image)).unsqueeze(0)
         
-        reward = torch.tensor([[reward]])
+        reward = torch.from_numpy(np.array([reward], dtype=np.float32)).unsqueeze(0)
         
         action = action.unsqueeze(0)
+        
         # save replay
         memory.push(state, action, next_state, reward, terminal)
         
@@ -66,7 +71,7 @@ def update_model():
     action_batch = torch.cat(tuple(d[1] for d in batch))
     next_state_batch = torch.cat(tuple(d[2] for d in batch))
     reward_batch = torch.cat(tuple(d[3] for d in batch))
-    terminal_batch =[d[3] for d in batch]
+    terminal_batch =[d[4] for d in batch]
     
     if torch.cuda.is_available(): 
         state_batch = state_batch.cuda()
@@ -75,16 +80,11 @@ def update_model():
         next_state_batch = next_state_batch.cuda()
         terminal_batch = terminal_batch.cuda()
 
+    next_action_batch = model(next_state_batch)
     # if dead, rj, otherwise r_j + gamma*max(Q_t+1)
-    y_value = []
-    for i in range(len(batch)):
-        if terminal_batch[i]:
-            y_value.append(reward_batch[i])
-        else:
-            cur_batch = reward_batch[i] + DISCOUNT_FACTOR * torch.max(model(next_state_batch[i]))
-            y_value.append(cur_batch)
-
-    y_batch = torch.cat(tuple(y for y in y_value))
+    y_batch = torch.cat(tuple(reward_batch[i] if batch[i][4]
+                                  else reward_batch[i] + DISCOUNT_FACTOR * torch.max(next_action_batch[i])
+                                  for i in range(len(batch))))
     # Extract Q-value (this part i don't understand)
     
     q_value = torch.sum(model(state_batch) * action_batch, dim=1)
@@ -123,7 +123,7 @@ def plot_duration(duration):
 if __name__ == "__main__":
     
     
-    LEARNING_RATE = 0.0001
+    LEARNING_RATE = 1e-5
     MAX_ITER = 5000000
     MAX_EXPERIENCE = 40
     DISCOUNT_FACTOR = 0.99

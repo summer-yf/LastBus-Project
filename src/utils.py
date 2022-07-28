@@ -19,7 +19,6 @@ def pre_processing(image):
     output = output.transpose(2, 0, 1)
     output = torch.from_numpy(output.astype(np.float32))
     
-    output = torch.cat((output, output, output, output)).unsqueeze(0)
     
     if torch.cuda.is_available():
         output = output.cuda()
