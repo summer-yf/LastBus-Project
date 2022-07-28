@@ -81,40 +81,39 @@ def update_model():
         terminal_batch = terminal_batch.cuda()
 
     next_action_batch = model(next_state_batch)
-    # if dead, rj, otherwise r_j + gamma*max(Q_t+1)
+    
+    # (1) reward if terminal, reward + discount factor * max next Q if not terminal
     y_batch = torch.cat(tuple(reward_batch[i] if batch[i][4]
                                   else reward_batch[i] + DISCOUNT_FACTOR * torch.max(next_action_batch[i])
-                                  for i in range(len(batch))))
-    # Extract Q-value (this part i don't understand)
+                                  for i in range(len(batch))))   
     
+    # (2) current q value
     q_value = torch.sum(model(state_batch) * action_batch, dim=1)
-
+    
     optimizer.zero_grad()
 
-    # Returns a new Tensor, detached from the current graph, the result will never require gradient
+    # Free up y_batch to prevent from code error when running loss.backward
     y_batch = y_batch.detach()
 
-    # Calculate loss
+    # Calculate loss ((1) vs (2))
     loss = criterion(q_value, y_batch)
 
-    # Do backward pass
+    # Update Model
     loss.backward()
     optimizer.step()
     
 
 
 def plot_duration(duration):
-    """Plot durations of episodes and average over last 100 episodes"""
     plt.figure(1)
     plt.clf()
-    durations_t = torch.tensor(duration, dtype=torch.float)
-    plt.title('Training...')
-    plt.xlabel('Episode')
+    
+    duration_tensor = torch.tensor(duration, dtype=torch.float)
+    plt.xlabel('Iteration')
     plt.ylabel('Reward')
-    plt.plot(durations_t.numpy())
-    # Take 100 episode averages and plot them too
-    if len(durations_t) >= 100:
-        means = durations_t.unfold(0, 100, 1).mean(1).view(-1)
+    plt.plot(duration_tensor.numpy())
+    if len(duration_tensor) >= 100:
+        means = duration_tensor.unfold(0, 100, 1).mean(1).view(-1)
         means = torch.cat((torch.zeros(99), means))
         plt.plot(means.numpy())
 
