@@ -1,6 +1,6 @@
 from random import sample
 
-class ReplayMemory:
+class Memory:
     def __init__(self, capacity):
         self.capacity = capacity
         self.memory = []
@@ -14,4 +14,8 @@ class ReplayMemory:
     def sample(self, batch_size):
         batch = sample(self.memory, min(len(self.memory), batch_size))
         return batch
+
+    def clear(self):
+        del self.memory[:]
+        return
 

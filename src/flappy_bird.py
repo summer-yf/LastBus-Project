@@ -98,7 +98,7 @@ class FlappyBird(object):
         reward = 0.1
         terminal = False
         # Check input action
-        if action[0] == 1:
+        if action == 1:
             self.current_velocity_y = self.upward_speed
             self.is_flapped = True
 

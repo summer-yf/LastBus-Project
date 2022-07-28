@@ -13,7 +13,18 @@ def pre_processing(image):
     dim = (weight, height)
     image_resize = cv2.resize(image, dim)
     _, thresh1 = cv2.threshold(image_resize, 1, 255, cv2.THRESH_BINARY)
-    return thresh1.astype(np.float32)
+    
+    thresh1 = np.reshape(thresh1, (weight, height, 1))
+    output = thresh1.astype(np.float32)
+    output = output.transpose(2, 0, 1)
+    output = torch.from_numpy(output.astype(np.float32))
+    
+    output = torch.cat((output, output, output, output)).unsqueeze(0)
+    
+    if torch.cuda.is_available():
+        output = output.cuda()
+    
+    return output
 
 # 84x84x4 image(probably can change 4 for further tests)
 def net_input(image):
