@@ -48,12 +48,14 @@ def train_model():
         memory.push(state, action, next_state, reward, terminal)
         
         state = next_state
-        update_model()
+        
+        if iter % 10 == 0:
+            update_model()
 
         print("Iteration: {}/{}, Action: {}, Reward: {}, Q-value: {}".format(
             iter + 1,
             MAX_ITER,
-            action[0],
+            int(action[0][1]),
             reward, torch.max(q_value)))
 
         alive_time += 1
@@ -71,7 +73,7 @@ def update_model():
     action_batch = torch.cat(tuple(d[1] for d in batch))
     next_state_batch = torch.cat(tuple(d[2] for d in batch))
     reward_batch = torch.cat(tuple(d[3] for d in batch))
-    terminal_batch =[d[4] for d in batch]
+    terminal_batch = [d[4] for d in batch]
     
     if torch.cuda.is_available(): 
         state_batch = state_batch.cuda()
@@ -108,14 +110,10 @@ def plot_duration(duration):
     plt.figure(1)
     plt.clf()
     
-    duration_tensor = torch.tensor(duration, dtype=torch.float)
-    plt.xlabel('Iteration')
-    plt.ylabel('Reward')
-    plt.plot(duration_tensor.numpy())
-    if len(duration_tensor) >= 100:
-        means = duration_tensor.unfold(0, 100, 1).mean(1).view(-1)
-        means = torch.cat((torch.zeros(99), means))
-        plt.plot(means.numpy())
+    plt.xlabel('Trial')
+    plt.ylabel('Frame Survived')
+    plt.plot(duration)
+    
 
     plt.pause(0.001)
 

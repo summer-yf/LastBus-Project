@@ -1,6 +1,7 @@
 import cv2
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
 # prepross image from 512x218 to 84x84 Grayscale
 # everything greater than 1 is set to 255
 # for easier use in training
