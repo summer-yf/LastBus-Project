@@ -68,7 +68,7 @@ def train_model():
             reward, torch.max(q_value)))
 
         alive_time += 1
-        if(iter+1) % 100 == 0:
+        if(iter+1) % 100000 == 0:
             torch.save(model, "{}/flappy_bird_{}".format(save_path, iter+1))
         
         if terminal:
@@ -76,7 +76,7 @@ def train_model():
             plot_duration(alive_stat)
     
             alive_time = 0
-        if(iter+1) % 100 == 0:
+        if(iter+1) % 100000 == 0:
             plt.savefig('{}/train_{}.jpg'.format(graph_path, iter+1))
     torch.save(model,"{}/flappy_bird".format(save_path))
 

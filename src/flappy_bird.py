@@ -1,6 +1,3 @@
-"""
-@author: Viet Nguyen <nhviet1009@gmail.com>
-"""
 from itertools import cycle
 from numpy.random import randint
 from pygame import Rect, init, time, display

@@ -42,7 +42,7 @@ def test():
             plot_duration(alive_stat)
     
             alive_time = 0
-        if(iter+1) % 100 == 0:
+        if(iter+1) % 100000 == 0:
             plt.savefig('{}/test{}.jpg'.format(graph_path, model_number))
         iter += 1
             
