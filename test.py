@@ -5,7 +5,7 @@ import torch.optim as optim
 import torch
 import torch.nn as nn
 from src.memory import *
-from src.a2c import *
+from src.convModel import *
 from src.utils import *
 from src.flappy_bird import *
 import random
