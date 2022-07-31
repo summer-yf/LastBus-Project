@@ -9,7 +9,7 @@ from src.utils import *
 from src.flappy_bird import *
 import random
 from matplotlib import pyplot as plt
-
+import time as t
 
 #train_model will train model 2 million times and save model and graph every 100k times
 
@@ -59,6 +59,7 @@ def train_model():
         memory.push(state, action, next_state, reward, terminal)
         
         state = next_state
+        
         update_model()
 
         print("Iteration: {}/{}, Action: {}, Reward: {}, Q-value: {}".format(
@@ -143,12 +144,13 @@ if __name__ == "__main__":
     
     
     LEARNING_RATE = 1e-5
-    MAX_ITER = 2000000
-    MAX_EXPERIENCE = 40
+    MAX_ITER = 500000
+    MAX_EXPERIENCE = 100
     DISCOUNT_FACTOR = 0.99
-    BATCH_SIZE = 30
+    BATCH_SIZE = 85
     INITIAL_EPSILON = 0.2
     
+    start_time = t.time()
     iter = 0
     
     # Constructing memory class
@@ -161,7 +163,6 @@ if __name__ == "__main__":
     graph_path = "graph"
     plt.ion()
     train_model()
-    
+    print(t.time() - start_time)
     plt.ioff()
-    #plt.savefig("{}/train_{}".format(graph_path, iter+1))
     plt.show()
