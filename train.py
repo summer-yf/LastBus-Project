@@ -148,7 +148,7 @@ if __name__ == "__main__":
     MAX_EXPERIENCE = 50
     DISCOUNT_FACTOR = 0.99
     BATCH_SIZE = 30
-    INITIAL_EPSILON = 0.2
+    INITIAL_EPSILON = 0.6
     
     start_time = t.time()
     iter = 0
