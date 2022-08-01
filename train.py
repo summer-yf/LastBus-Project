@@ -145,9 +145,9 @@ if __name__ == "__main__":
     
     LEARNING_RATE = 1e-5
     MAX_ITER = 500000
-    MAX_EXPERIENCE = 50
+    MAX_EXPERIENCE = 100
     DISCOUNT_FACTOR = 0.99
-    BATCH_SIZE = 30
+    BATCH_SIZE = 85
     INITIAL_EPSILON = 0.2
     
     start_time = t.time()
