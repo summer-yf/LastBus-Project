@@ -3,10 +3,10 @@ import shutil
 import torch.optim as optim
 import torch
 import torch.nn as nn
-from src.memory import *
-from src.convModel import *
-from src.utils import *
-from src.flappy_bird import *
+from memory import *
+from convModel import *
+from utils import *
+from flappy_bird import *
 import random
 from matplotlib import pyplot as plt
 import time as t
