@@ -16,7 +16,7 @@ from matplotlib import pyplot as plt
 def test():
     save_path = "trained_models"
     ##modify the model you want to test, keep "_" 
-    model_number = "_100"
+    model_number = "_100000"
     model = torch.load("{}/flappy_bird{}".format(save_path, model_number))
     model.eval()
     

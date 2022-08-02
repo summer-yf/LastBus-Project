@@ -22,12 +22,9 @@ def train_model():
     state = torch.cat((state, state, state, state)).unsqueeze(0)
     alive_stat = []
     alive_time = 0
-    log_path = "tensorboard"
     save_path = "trained_models"
     graph_path = "graph"
-    if os.path.isdir(log_path):
-        shutil.rmtree(log_path)
-    os.makedirs(log_path)
+
     while iter < MAX_ITER:
         iter = iter + 1
         q_value = model(state)[0]
@@ -101,8 +98,9 @@ def update_model():
         terminal_batch = terminal_batch.cuda()
 
     next_action_batch = model(next_state_batch)
+    
     # if dead, rj, otherwise r_j + gamma*max(Q_t+1)
-    y_batch = torch.cat(tuple(reward_batch[i] if batch[i][4]
+    y_batch = torch.cat(tuple(reward_batch[i] if terminal_batch[i]
                                   else reward_batch[i] + DISCOUNT_FACTOR * torch.max(next_action_batch[i])
                                   for i in range(len(batch))))
     # Extract Q-value (this part i don't understand)
@@ -145,9 +143,9 @@ if __name__ == "__main__":
     
     LEARNING_RATE = 1e-5
     MAX_ITER = 500000
-    MAX_EXPERIENCE = 50
+    MAX_EXPERIENCE = 1
     DISCOUNT_FACTOR = 0.99
-    BATCH_SIZE = 30
+    BATCH_SIZE = 1
     INITIAL_EPSILON = 0.6
     
     start_time = t.time()
